@@ -16,7 +16,11 @@ clay_color_to_rl_color :: proc(color: clay.Color) -> rl.Color {
 
 raylib_fonts := [dynamic]Raylib_Font{}
 
-measure_text :: proc "c" (text: clay.StringSlice, config: ^clay.TextElementConfig, userData: rawptr) -> clay.Dimensions {
+measure_text :: proc "c" (
+    text: clay.StringSlice,
+    config: ^clay.TextElementConfig,
+    userData: rawptr,
+) -> clay.Dimensions {
     line_width: f32 = 0
 
     font := raylib_fonts[config.fontId].font
@@ -53,7 +57,14 @@ clay_raylib_render :: proc(render_commands: ^clay.Array(clay.RenderCommand), all
             cstr_text := strings.clone_to_cstring(text, allocator)
 
             font := raylib_fonts[config.fontId].font
-            rl.DrawTextEx(font, cstr_text, {bounds.x, bounds.y}, f32(config.fontSize), f32(config.letterSpacing), clay_color_to_rl_color(config.textColor))
+            rl.DrawTextEx(
+                font,
+                cstr_text,
+                {bounds.x, bounds.y},
+                f32(config.fontSize),
+                f32(config.letterSpacing),
+                clay_color_to_rl_color(config.textColor),
+            )
         case .Image:
             config := render_command.renderData.image
             tint := config.backgroundColor
@@ -62,9 +73,20 @@ clay_raylib_render :: proc(render_commands: ^clay.Array(clay.RenderCommand), all
             }
 
             imageTexture := (^rl.Texture2D)(config.imageData)
-            rl.DrawTextureEx(imageTexture^, {bounds.x, bounds.y}, 0, bounds.width / f32(imageTexture.width), clay_color_to_rl_color(tint))
+            rl.DrawTextureEx(
+                imageTexture^,
+                {bounds.x, bounds.y},
+                0,
+                bounds.width / f32(imageTexture.width),
+                clay_color_to_rl_color(tint),
+            )
         case .ScissorStart:
-            rl.BeginScissorMode(i32(math.round(bounds.x)), i32(math.round(bounds.y)), i32(math.round(bounds.width)), i32(math.round(bounds.height)))
+            rl.BeginScissorMode(
+                i32(math.round(bounds.x)),
+                i32(math.round(bounds.y)),
+                i32(math.round(bounds.width)),
+                i32(math.round(bounds.height)),
+            )
         case .ScissorEnd:
             rl.EndScissorMode()
         case .Rectangle:
@@ -173,16 +195,29 @@ clay_raylib_render :: proc(render_commands: ^clay.Array(clay.RenderCommand), all
 
 @(private = "file")
 draw_arc :: proc(x, y: f32, inner_rad, outer_rad: f32, start_angle, end_angle: f32, color: clay.Color) {
-    rl.DrawRing({math.round(x), math.round(y)}, math.round(inner_rad), outer_rad, start_angle, end_angle, 10, clay_color_to_rl_color(color))
+    rl.DrawRing(
+        {math.round(x), math.round(y)},
+        math.round(inner_rad),
+        outer_rad,
+        start_angle,
+        end_angle,
+        10,
+        clay_color_to_rl_color(color),
+    )
 }
 
 @(private = "file")
 draw_rect :: proc(x, y, w, h: f32, color: clay.Color) {
-    rl.DrawRectangle(i32(math.round(x)), i32(math.round(y)), i32(math.round(w)), i32(math.round(h)), clay_color_to_rl_color(color))
+    rl.DrawRectangle(
+        i32(math.round(x)),
+        i32(math.round(y)),
+        i32(math.round(w)),
+        i32(math.round(h)),
+        clay_color_to_rl_color(color),
+    )
 }
 
 @(private = "file")
 draw_rect_rounded :: proc(x, y, w, h: f32, radius: f32, color: clay.Color) {
     rl.DrawRectangleRounded({x, y, w, h}, radius, 8, clay_color_to_rl_color(color))
 }
-

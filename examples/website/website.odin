@@ -2,7 +2,6 @@ package main
 
 import clay "../../"
 import "core:c"
-import "core:fmt"
 import rl "vendor:raylib"
 
 windowWidth: i32 = 1024
@@ -62,15 +61,29 @@ border2pxRed := clay.BorderElementConfig {
     color = COLOR_RED,
 }
 
-LandingPageBlob :: proc(index: u32, fontSize: u16, fontId: u16, color: clay.Color, $text: string, image: ^rl.Texture2D) {
+LandingPageBlob :: proc(
+    index: u32,
+    fontSize: u16,
+    fontId: u16,
+    color: clay.Color,
+    $text: string,
+    image: ^rl.Texture2D,
+) {
     if clay.UI(clay.ID("HeroBlob", index))(
     {
-        layout = {sizing = {width = clay.SizingGrow({max = 480})}, padding = clay.PaddingAll(16), childGap = 16, childAlignment = clay.ChildAlignment{y = .Center}},
+        layout = {
+            sizing = {width = clay.SizingGrow({max = 480})},
+            padding = clay.PaddingAll(16),
+            childGap = 16,
+            childAlignment = clay.ChildAlignment{y = .Center},
+        },
         border = border2pxRed,
         cornerRadius = clay.CornerRadiusAll(10),
     },
     ) {
-        if clay.UI(clay.ID("CheckImage", index))({layout = {sizing = {width = clay.SizingFixed(32)}}, aspectRatio = {1.0}, image = {imageData = image}}) {}
+        if clay.UI(clay.ID("CheckImage", index))(
+        {layout = {sizing = {width = clay.SizingFixed(32)}}, aspectRatio = {1.0}, image = {imageData = image}},
+        ) {}
         clay.Text(text, clay.TextConfig({fontSize = fontSize, fontId = fontId, textColor = color}))
     }
 }
@@ -87,23 +100,47 @@ LandingPageDesktop :: proc() {
     ) {
         if clay.UI(clay.ID("LandingPage1"))(
         {
-            layout = {sizing = {clay.SizingGrow(), clay.SizingGrow()}, childAlignment = {y = .Center}, padding = clay.PaddingAll(32), childGap = 32},
+            layout = {
+                sizing = {clay.SizingGrow(), clay.SizingGrow()},
+                childAlignment = {y = .Center},
+                padding = clay.PaddingAll(32),
+                childGap = 32,
+            },
             border = {COLOR_RED, {left = 2, right = 2}},
         },
         ) {
-            if clay.UI(clay.ID("LeftText"))({layout = {sizing = {width = clay.SizingPercent(0.55)}, layoutDirection = .TopToBottom, childGap = 8}}) {
+            if clay.UI(clay.ID("LeftText"))(
+            {layout = {sizing = {width = clay.SizingPercent(0.55)}, layoutDirection = .TopToBottom, childGap = 8}},
+            ) {
                 clay.Text(
                     "Clay is a flex-box style UI auto layout library in C, with declarative syntax and microsecond performance.",
                     clay.TextConfig({fontSize = 56, fontId = FONT_ID_TITLE_56, textColor = COLOR_RED}),
                 )
                 if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {}
-                clay.Text("Clay is laying out this webpage right now!", clay.TextConfig({fontSize = 36, fontId = FONT_ID_TITLE_36, textColor = COLOR_ORANGE}))
+                clay.Text(
+                    "Clay is laying out this webpage right now!",
+                    clay.TextConfig({fontSize = 36, fontId = FONT_ID_TITLE_36, textColor = COLOR_ORANGE}),
+                )
             }
             if clay.UI(clay.ID("HeroImageOuter"))(
-            {layout = {layoutDirection = .TopToBottom, sizing = {width = clay.SizingPercent(0.45)}, childAlignment = {x = .Center}, childGap = 16}},
+            {
+                layout = {
+                    layoutDirection = .TopToBottom,
+                    sizing = {width = clay.SizingPercent(0.45)},
+                    childAlignment = {x = .Center},
+                    childGap = 16,
+                },
+            },
             ) {
                 LandingPageBlob(1, 30, FONT_ID_BODY_30, COLOR_BLOB_BORDER_5, "High performance", &checkImage5)
-                LandingPageBlob(2, 30, FONT_ID_BODY_30, COLOR_BLOB_BORDER_4, "Flexbox-style responsive layout", &checkImage4)
+                LandingPageBlob(
+                    2,
+                    30,
+                    FONT_ID_BODY_30,
+                    COLOR_BLOB_BORDER_4,
+                    "Flexbox-style responsive layout",
+                    &checkImage4,
+                )
                 LandingPageBlob(3, 30, FONT_ID_BODY_30, COLOR_BLOB_BORDER_3, "Declarative syntax", &checkImage3)
                 LandingPageBlob(4, 30, FONT_ID_BODY_30, COLOR_BLOB_BORDER_2, "Single .h file for C/C++", &checkImage2)
                 LandingPageBlob(5, 30, FONT_ID_BODY_30, COLOR_BLOB_BORDER_1, "Compile to 15kb .wasm", &checkImage1)
@@ -124,17 +161,38 @@ LandingPageMobile :: proc() {
         },
     },
     ) {
-        if clay.UI(clay.ID("LeftText"))({layout = {sizing = {width = clay.SizingGrow()}, layoutDirection = .TopToBottom, childGap = 8}}) {
+        if clay.UI(clay.ID("LeftText"))(
+        {layout = {sizing = {width = clay.SizingGrow()}, layoutDirection = .TopToBottom, childGap = 8}},
+        ) {
             clay.Text(
                 "Clay is a flex-box style UI auto layout library in C, with declarative syntax and microsecond performance.",
                 clay.TextConfig({fontSize = 48, fontId = FONT_ID_TITLE_48, textColor = COLOR_RED}),
             )
             if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {}
-            clay.Text("Clay is laying out this webpage right now!", clay.TextConfig({fontSize = 32, fontId = FONT_ID_TITLE_32, textColor = COLOR_ORANGE}))
+            clay.Text(
+                "Clay is laying out this webpage right now!",
+                clay.TextConfig({fontSize = 32, fontId = FONT_ID_TITLE_32, textColor = COLOR_ORANGE}),
+            )
         }
-        if clay.UI(clay.ID("HeroImageOuter"))({layout = {layoutDirection = .TopToBottom, sizing = {width = clay.SizingGrow()}, childAlignment = {x = .Center}, childGap = 16}}) {
+        if clay.UI(clay.ID("HeroImageOuter"))(
+        {
+            layout = {
+                layoutDirection = .TopToBottom,
+                sizing = {width = clay.SizingGrow()},
+                childAlignment = {x = .Center},
+                childGap = 16,
+            },
+        },
+        ) {
             LandingPageBlob(1, 24, FONT_ID_BODY_24, COLOR_BLOB_BORDER_5, "High performance", &checkImage5)
-            LandingPageBlob(2, 24, FONT_ID_BODY_24, COLOR_BLOB_BORDER_4, "Flexbox-style responsive layout", &checkImage4)
+            LandingPageBlob(
+                2,
+                24,
+                FONT_ID_BODY_24,
+                COLOR_BLOB_BORDER_4,
+                "Flexbox-style responsive layout",
+                &checkImage4,
+            )
             LandingPageBlob(3, 24, FONT_ID_BODY_24, COLOR_BLOB_BORDER_3, "Declarative syntax", &checkImage3)
             LandingPageBlob(4, 24, FONT_ID_BODY_24, COLOR_BLOB_BORDER_2, "Single .h file for C/C++", &checkImage2)
             LandingPageBlob(5, 24, FONT_ID_BODY_24, COLOR_BLOB_BORDER_1, "Compile to 15kb .wasm", &checkImage1)
@@ -145,18 +203,42 @@ LandingPageMobile :: proc() {
 FeatureBlocks :: proc(widthSizing: clay.SizingAxis, outerPadding: u16) {
     textConfig := clay.TextConfig({fontSize = 24, fontId = FONT_ID_BODY_24, textColor = COLOR_RED})
     if clay.UI(clay.ID("HFileBoxOuter"))(
-    {layout = {layoutDirection = .TopToBottom, sizing = {width = widthSizing}, childAlignment = {y = .Center}, padding = {outerPadding, outerPadding, 32, 32}, childGap = 8}},
+    {
+        layout = {
+            layoutDirection = .TopToBottom,
+            sizing = {width = widthSizing},
+            childAlignment = {y = .Center},
+            padding = {outerPadding, outerPadding, 32, 32},
+            childGap = 8,
+        },
+    },
     ) {
-        if clay.UI(clay.ID("HFileIncludeOuter"))({layout = {padding = {8, 8, 4, 4}}, backgroundColor = COLOR_RED, cornerRadius = clay.CornerRadiusAll(8)}) {
-            clay.Text("#include clay.h", clay.TextConfig({fontSize = 24, fontId = FONT_ID_BODY_24, textColor = COLOR_LIGHT}))
+        if clay.UI(clay.ID("HFileIncludeOuter"))(
+        {layout = {padding = {8, 8, 4, 4}}, backgroundColor = COLOR_RED, cornerRadius = clay.CornerRadiusAll(8)},
+        ) {
+            clay.Text(
+                "#include clay.h",
+                clay.TextConfig({fontSize = 24, fontId = FONT_ID_BODY_24, textColor = COLOR_LIGHT}),
+            )
         }
         clay.Text("~2000 lines of C99.", textConfig)
         clay.Text("Zero dependencies, including no C standard library.", textConfig)
     }
     if clay.UI(clay.ID("BringYourOwnRendererOuter"))(
-    {layout = {layoutDirection = .TopToBottom, sizing = {width = widthSizing}, childAlignment = {y = .Center}, padding = {outerPadding, outerPadding, 32, 32}, childGap = 8}},
+    {
+        layout = {
+            layoutDirection = .TopToBottom,
+            sizing = {width = widthSizing},
+            childAlignment = {y = .Center},
+            padding = {outerPadding, outerPadding, 32, 32},
+            childGap = 8,
+        },
+    },
     ) {
-        clay.Text("Renderer agnostic.", clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = COLOR_ORANGE}))
+        clay.Text(
+            "Renderer agnostic.",
+            clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = COLOR_ORANGE}),
+        )
         clay.Text("Layout with clay, then render with rl, WebGL Canvas or even as HTML.", textConfig)
         clay.Text("Flexible output for easy compositing in your custom engine or environment.", textConfig)
     }
@@ -165,7 +247,10 @@ FeatureBlocks :: proc(widthSizing: clay.SizingAxis, outerPadding: u16) {
 FeatureBlocksDesktop :: proc() {
     if clay.UI(clay.ID("FeatureBlocksOuter"))({layout = {sizing = {width = clay.SizingGrow({})}}}) {
         if clay.UI(clay.ID("FeatureBlocksInner"))(
-        {layout = {sizing = {width = clay.SizingGrow()}, childAlignment = {y = .Center}}, border = {width = {betweenChildren = 2}, color = COLOR_RED}},
+        {
+            layout = {sizing = {width = clay.SizingGrow()}, childAlignment = {y = .Center}},
+            border = {width = {betweenChildren = 2}, color = COLOR_RED},
+        },
         ) {
             FeatureBlocks(clay.SizingPercent(0.5), 50)
         }
@@ -174,41 +259,72 @@ FeatureBlocksDesktop :: proc() {
 
 FeatureBlocksMobile :: proc() {
     if clay.UI(clay.ID("FeatureBlocksInner"))(
-    {layout = {layoutDirection = .TopToBottom, sizing = {width = clay.SizingGrow()}}, border = {width = {betweenChildren = 2}, color = COLOR_RED}},
+    {
+        layout = {layoutDirection = .TopToBottom, sizing = {width = clay.SizingGrow()}},
+        border = {width = {betweenChildren = 2}, color = COLOR_RED},
+    },
     ) {
         FeatureBlocks(clay.SizingGrow({}), 16)
     }
 }
 
 DeclarativeSyntaxPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.SizingAxis) {
-    if clay.UI(clay.ID("SyntaxPageLeftText"))({layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}}) {
+    if clay.UI(clay.ID("SyntaxPageLeftText"))(
+    {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
+    ) {
         clay.Text("Declarative Syntax", clay.TextConfig(titleTextConfig))
         if clay.UI(clay.ID("SyntaxSpacer"))({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
         clay.Text(
             "Flexible and readable declarative syntax with nested UI element hierarchies.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}),
         )
-        clay.Text("Mix elements with standard C code like loops, conditionals and functions.", clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}))
+        clay.Text(
+            "Mix elements with standard C code like loops, conditionals and functions.",
+            clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}),
+        )
         clay.Text(
             "Create your own library of re-usable components from UI primitives like text, images and rectangles.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}),
         )
     }
-    if clay.UI(clay.ID("SyntaxPageRightImage"))({layout = {sizing = {width = widthSizing}, childAlignment = {x = .Center}}}) {
+    if clay.UI(clay.ID("SyntaxPageRightImage"))(
+    {layout = {sizing = {width = widthSizing}, childAlignment = {x = .Center}}},
+    ) {
         if clay.UI(clay.ID("SyntaxPageRightImageInner"))(
-        {layout = {sizing = {width = clay.SizingGrow({max = 568})}}, aspectRatio = {1136.0 / 1194.0}, image = {imageData = &syntaxImage}},
+        {
+            layout = {sizing = {width = clay.SizingGrow({max = 568})}},
+            aspectRatio = {1136.0 / 1194.0},
+            image = {imageData = &syntaxImage},
+        },
         ) {}
     }
 }
 
 DeclarativeSyntaxPageDesktop :: proc() {
     if clay.UI(clay.ID("SyntaxPageDesktop"))(
-    {layout = {sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})}, childAlignment = {y = .Center}, padding = {left = 50, right = 50}}},
+    {
+        layout = {
+            sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})},
+            childAlignment = {y = .Center},
+            padding = {left = 50, right = 50},
+        },
+    },
     ) {
         if clay.UI(clay.ID("SyntaxPage"))(
-        {layout = {sizing = {clay.SizingGrow(), clay.SizingGrow()}, childAlignment = {y = .Center}, padding = clay.PaddingAll(32), childGap = 32}, border = border2pxRed},
+        {
+            layout = {
+                sizing = {clay.SizingGrow(), clay.SizingGrow()},
+                childAlignment = {y = .Center},
+                padding = clay.PaddingAll(32),
+                childGap = 32,
+            },
+            border = border2pxRed,
+        },
         ) {
-            DeclarativeSyntaxPage({fontSize = 52, fontId = FONT_ID_TITLE_52, textColor = COLOR_RED}, clay.SizingPercent(0.5))
+            DeclarativeSyntaxPage(
+                {fontSize = 52, fontId = FONT_ID_TITLE_52, textColor = COLOR_RED},
+                clay.SizingPercent(0.5),
+            )
         }
     }
 }
@@ -230,16 +346,26 @@ DeclarativeSyntaxPageMobile :: proc() {
 }
 
 ColorLerp :: proc(a: clay.Color, b: clay.Color, amount: f32) -> clay.Color {
-    return clay.Color{a.r + (b.r - a.r) * amount, a.g + (b.g - a.g) * amount, a.b + (b.b - a.b) * amount, a.a + (b.a - a.a) * amount}
+    return clay.Color {
+        a.r + (b.r - a.r) * amount,
+        a.g + (b.g - a.g) * amount,
+        a.b + (b.b - a.b) * amount,
+        a.a + (b.a - a.a) * amount,
+    }
 }
 
 LOREM_IPSUM_TEXT :: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
 HighPerformancePage :: proc(lerpValue: f32, titleTextConfig: clay.TextElementConfig, widthSizing: clay.SizingAxis) {
-    if clay.UI(clay.ID("PerformanceLeftText"))({layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}}) {
+    if clay.UI(clay.ID("PerformanceLeftText"))(
+    {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
+    ) {
         clay.Text("High Performance", clay.TextConfig(titleTextConfig))
         if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
-        clay.Text("Fast enough to recompute your entire UI every frame.", clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_LIGHT}))
+        clay.Text(
+            "Fast enough to recompute your entire UI every frame.",
+            clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_LIGHT}),
+        )
         clay.Text(
             "Small memory footprint (3.5mb default) with static allocation & reuse. No malloc / free.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_LIGHT}),
@@ -249,23 +375,41 @@ HighPerformancePage :: proc(lerpValue: f32, titleTextConfig: clay.TextElementCon
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_LIGHT}),
         )
     }
-    if clay.UI(clay.ID("PerformanceRightImageOuter"))({layout = {sizing = {width = widthSizing}, childAlignment = {x = .Center}}}) {
-        if clay.UI(clay.ID("PerformanceRightBorder"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(400)}}, border = {COLOR_LIGHT, {2, 2, 2, 2, 2}}}) {
+    if clay.UI(clay.ID("PerformanceRightImageOuter"))(
+    {layout = {sizing = {width = widthSizing}, childAlignment = {x = .Center}}},
+    ) {
+        if clay.UI(clay.ID("PerformanceRightBorder"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(400)}}, border = {COLOR_LIGHT, {2, 2, 2, 2, 2}}},
+        ) {
             if clay.UI(clay.ID("AnimationDemoContainerLeft"))(
             {
-                layout = {sizing = {clay.SizingPercent(0.35 + 0.3 * lerpValue), clay.SizingGrow()}, childAlignment = {y = .Center}, padding = clay.PaddingAll(16)},
+                layout = {
+                    sizing = {clay.SizingPercent(0.35 + 0.3 * lerpValue), clay.SizingGrow()},
+                    childAlignment = {y = .Center},
+                    padding = clay.PaddingAll(16),
+                },
                 backgroundColor = ColorLerp(COLOR_RED, COLOR_ORANGE, lerpValue),
             },
             ) {
-                clay.Text(LOREM_IPSUM_TEXT, clay.TextConfig({fontSize = 16, fontId = FONT_ID_BODY_16, textColor = COLOR_LIGHT}))
+                clay.Text(
+                    LOREM_IPSUM_TEXT,
+                    clay.TextConfig({fontSize = 16, fontId = FONT_ID_BODY_16, textColor = COLOR_LIGHT}),
+                )
             }
             if clay.UI(clay.ID("AnimationDemoContainerRight"))(
             {
-                layout = {sizing = {clay.SizingGrow(), clay.SizingGrow()}, childAlignment = {y = .Center}, padding = clay.PaddingAll(16)},
+                layout = {
+                    sizing = {clay.SizingGrow(), clay.SizingGrow()},
+                    childAlignment = {y = .Center},
+                    padding = clay.PaddingAll(16),
+                },
                 backgroundColor = ColorLerp(COLOR_ORANGE, COLOR_RED, lerpValue),
             },
             ) {
-                clay.Text(LOREM_IPSUM_TEXT, clay.TextConfig({fontSize = 16, fontId = FONT_ID_BODY_16, textColor = COLOR_LIGHT}))
+                clay.Text(
+                    LOREM_IPSUM_TEXT,
+                    clay.TextConfig({fontSize = 16, fontId = FONT_ID_BODY_16, textColor = COLOR_LIGHT}),
+                )
             }
         }
     }
@@ -274,11 +418,20 @@ HighPerformancePage :: proc(lerpValue: f32, titleTextConfig: clay.TextElementCon
 HighPerformancePageDesktop :: proc(lerpValue: f32) {
     if clay.UI(clay.ID("PerformanceDesktop"))(
     {
-        layout = {sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})}, childAlignment = {y = .Center}, padding = {82, 82, 32, 32}, childGap = 64},
+        layout = {
+            sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})},
+            childAlignment = {y = .Center},
+            padding = {82, 82, 32, 32},
+            childGap = 64,
+        },
         backgroundColor = COLOR_RED,
     },
     ) {
-        HighPerformancePage(lerpValue, {fontSize = 52, fontId = FONT_ID_TITLE_52, textColor = COLOR_LIGHT}, clay.SizingPercent(0.5))
+        HighPerformancePage(
+            lerpValue,
+            {fontSize = 52, fontId = FONT_ID_TITLE_52, textColor = COLOR_LIGHT},
+            clay.SizingPercent(0.5),
+        )
     }
 }
 
@@ -295,12 +448,22 @@ HighPerformancePageMobile :: proc(lerpValue: f32) {
         backgroundColor = COLOR_RED,
     },
     ) {
-        HighPerformancePage(lerpValue, {fontSize = 48, fontId = FONT_ID_TITLE_48, textColor = COLOR_LIGHT}, clay.SizingGrow({}))
+        HighPerformancePage(
+            lerpValue,
+            {fontSize = 48, fontId = FONT_ID_TITLE_48, textColor = COLOR_LIGHT},
+            clay.SizingGrow({}),
+        )
     }
 }
 
 RendererButtonActive :: proc(index: i32, $text: string) {
-    if clay.UI()({layout = {sizing = {width = clay.SizingFixed(300)}, padding = clay.PaddingAll(16)}, backgroundColor = COLOR_RED, cornerRadius = clay.CornerRadiusAll(10)}) {
+    if clay.UI()(
+    {
+        layout = {sizing = {width = clay.SizingFixed(300)}, padding = clay.PaddingAll(16)},
+        backgroundColor = COLOR_RED,
+        cornerRadius = clay.CornerRadiusAll(10),
+    },
+    ) {
         clay.Text(text, clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_LIGHT}))
     }
 }
@@ -308,7 +471,11 @@ RendererButtonActive :: proc(index: i32, $text: string) {
 RendererButtonInactive :: proc(index: u32, $text: string) {
     if clay.UI()({border = border2pxRed}) {
         if clay.UI(clay.ID("RendererButtonInactiveInner", index))(
-        {layout = {sizing = {width = clay.SizingFixed(300)}, padding = clay.PaddingAll(16)}, backgroundColor = COLOR_LIGHT, cornerRadius = clay.CornerRadiusAll(10)},
+        {
+            layout = {sizing = {width = clay.SizingFixed(300)}, padding = clay.PaddingAll(16)},
+            backgroundColor = COLOR_LIGHT,
+            cornerRadius = clay.CornerRadiusAll(10),
+        },
         ) {
             clay.Text(text, clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}))
         }
@@ -316,7 +483,9 @@ RendererButtonInactive :: proc(index: u32, $text: string) {
 }
 
 RendererPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.SizingAxis) {
-    if clay.UI(clay.ID("RendererLeftText"))({layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}}) {
+    if clay.UI(clay.ID("RendererLeftText"))(
+    {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
+    ) {
         clay.Text("Renderer & Platform Agnostic", clay.TextConfig(titleTextConfig))
         if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
         clay.Text(
@@ -327,10 +496,25 @@ RendererPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.
             "Write your own renderer in a few hundred lines of code, or use the provided examples for rl, WebGL canvas and more.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_RED}),
         )
-        clay.Text("There's even an HTML renderer - you're looking at it right now!", clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_RED}))
+        clay.Text(
+            "There's even an HTML renderer - you're looking at it right now!",
+            clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_RED}),
+        )
     }
-    if clay.UI(clay.ID("RendererRightText"))({layout = {sizing = {width = widthSizing}, childAlignment = {x = .Center}, layoutDirection = .TopToBottom, childGap = 16}}) {
-        clay.Text("Try changing renderer!", clay.TextConfig({fontSize = 36, fontId = FONT_ID_BODY_36, textColor = COLOR_ORANGE}))
+    if clay.UI(clay.ID("RendererRightText"))(
+    {
+        layout = {
+            sizing = {width = widthSizing},
+            childAlignment = {x = .Center},
+            layoutDirection = .TopToBottom,
+            childGap = 16,
+        },
+    },
+    ) {
+        clay.Text(
+            "Try changing renderer!",
+            clay.TextConfig({fontSize = 36, fontId = FONT_ID_BODY_36, textColor = COLOR_ORANGE}),
+        )
         if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 32})}}}) {}
         RendererButtonActive(0, "rl Renderer")
     }
@@ -338,11 +522,22 @@ RendererPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.
 
 RendererPageDesktop :: proc() {
     if clay.UI(clay.ID("RendererPageDesktop"))(
-    {layout = {sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})}, childAlignment = {y = .Center}, padding = {left = 50, right = 50}}},
+    {
+        layout = {
+            sizing = {clay.SizingGrow(), clay.SizingFit({min = cast(f32)windowHeight - 50})},
+            childAlignment = {y = .Center},
+            padding = {left = 50, right = 50},
+        },
+    },
     ) {
         if clay.UI(clay.ID("RendererPage"))(
         {
-            layout = {sizing = {clay.SizingGrow(), clay.SizingGrow()}, childAlignment = {y = .Center}, padding = clay.PaddingAll(32), childGap = 32},
+            layout = {
+                sizing = {clay.SizingGrow(), clay.SizingGrow()},
+                childAlignment = {y = .Center},
+                padding = clay.PaddingAll(32),
+                childGap = 32,
+            },
             border = {COLOR_RED, {left = 2, right = 2}},
         },
         ) {
@@ -380,19 +575,37 @@ animationLerpValue: f32 = -1.0
 createLayout :: proc(lerpValue: f32) -> clay.Array(clay.RenderCommand) {
     mobileScreen := windowWidth < 750
     clay.BeginLayout()
-    if clay.UI(clay.ID("OuterContainer"))({layout = {layoutDirection = .TopToBottom, sizing = {clay.SizingGrow(), clay.SizingGrow()}}, backgroundColor = COLOR_LIGHT}) {
+    if clay.UI(clay.ID("OuterContainer"))(
+    {
+        layout = {layoutDirection = .TopToBottom, sizing = {clay.SizingGrow(), clay.SizingGrow()}},
+        backgroundColor = COLOR_LIGHT,
+    },
+    ) {
         if clay.UI(clay.ID("Header"))(
-        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(50)}, childAlignment = {y = .Center}, childGap = 24, padding = {left = 32, right = 32}}},
+        {
+            layout = {
+                sizing = {clay.SizingGrow(), clay.SizingFixed(50)},
+                childAlignment = {y = .Center},
+                childGap = 24,
+                padding = {left = 32, right = 32},
+            },
+        },
         ) {
             clay.Text("Clay", &headerTextConfig)
             if clay.UI()({layout = {sizing = {width = clay.SizingGrow()}}}) {}
 
             if (!mobileScreen) {
                 if clay.UI(clay.ID("LinkExamplesOuter"))({backgroundColor = {0, 0, 0, 0}}) {
-                    clay.Text("Examples", clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}))
+                    clay.Text(
+                        "Examples",
+                        clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}),
+                    )
                 }
                 if clay.UI(clay.ID("LinkDocsOuter"))({backgroundColor = {0, 0, 0, 0}}) {
-                    clay.Text("Docs", clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}))
+                    clay.Text(
+                        "Docs",
+                        clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}),
+                    )
                 }
             }
             if clay.UI(clay.ID("LinkGithubOuter"))(
@@ -403,18 +616,34 @@ createLayout :: proc(lerpValue: f32) -> clay.Array(clay.RenderCommand) {
                 cornerRadius = clay.CornerRadiusAll(10),
             },
             ) {
-                clay.Text("Github", clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}))
+                clay.Text(
+                    "Github",
+                    clay.TextConfig({fontId = FONT_ID_BODY_24, fontSize = 24, textColor = {61, 26, 5, 255}}),
+                )
             }
         }
-        if clay.UI(clay.ID("TopBorder1"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_5}) {}
-        if clay.UI(clay.ID("TopBorder2"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_4}) {}
-        if clay.UI(clay.ID("TopBorder3"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_3}) {}
-        if clay.UI(clay.ID("TopBorder4"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_2}) {}
-        if clay.UI(clay.ID("TopBorder5"))({layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_1}) {}
+        if clay.UI(clay.ID("TopBorder1"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_5},
+        ) {}
+        if clay.UI(clay.ID("TopBorder2"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_4},
+        ) {}
+        if clay.UI(clay.ID("TopBorder3"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_3},
+        ) {}
+        if clay.UI(clay.ID("TopBorder4"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_2},
+        ) {}
+        if clay.UI(clay.ID("TopBorder5"))(
+        {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_1},
+        ) {}
         if clay.UI(clay.ID("ScrollContainerBackgroundRectangle"))(
         {
             clip = {vertical = true, childOffset = clay.GetScrollOffset()},
-            layout = {sizing = {clay.SizingGrow(), clay.SizingGrow()}, layoutDirection = clay.LayoutDirection.TopToBottom},
+            layout = {
+                sizing = {clay.SizingGrow(), clay.SizingGrow()},
+                layoutDirection = clay.LayoutDirection.TopToBottom,
+            },
             backgroundColor = COLOR_LIGHT,
             border = {COLOR_RED, {betweenChildren = 2}},
         },
@@ -438,7 +667,11 @@ createLayout :: proc(lerpValue: f32) -> clay.Array(clay.RenderCommand) {
 }
 
 loadFont :: proc(fontId: u16, fontSize: u16, path: cstring) {
-    assign_at(&raylib_fonts, fontId, Raylib_Font{font = rl.LoadFontEx(path, cast(i32)fontSize * 2, nil, 0), fontId = cast(u16)fontId})
+    assign_at(
+        &raylib_fonts,
+        fontId,
+        Raylib_Font{font = rl.LoadFontEx(path, cast(i32)fontSize * 2, nil, 0), fontId = cast(u16)fontId},
+    )
     rl.SetTextureFilter(raylib_fonts[fontId].font.texture, rl.TextureFilter.TRILINEAR)
 }
 
@@ -494,7 +727,9 @@ main :: proc() {
         clay.SetPointerState(transmute(clay.Vector2)rl.GetMousePosition(), rl.IsMouseButtonDown(rl.MouseButton.LEFT))
         clay.UpdateScrollContainers(false, transmute(clay.Vector2)rl.GetMouseWheelMoveV(), rl.GetFrameTime())
         clay.SetLayoutDimensions({cast(f32)rl.GetScreenWidth(), cast(f32)rl.GetScreenHeight()})
-        renderCommands: clay.Array(clay.RenderCommand) = createLayout(animationLerpValue < 0 ? (animationLerpValue + 1) : (1 - animationLerpValue))
+        renderCommands: clay.Array(clay.RenderCommand) = createLayout(
+            animationLerpValue < 0 ? (animationLerpValue + 1) : (1 - animationLerpValue),
+        )
         rl.BeginDrawing()
         clay_raylib_render(&renderCommands)
         rl.EndDrawing()

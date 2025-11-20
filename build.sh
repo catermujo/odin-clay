@@ -5,6 +5,7 @@
 cp clay/bindings/odin/clay-odin/macos-arm64/clay.a clay.darwin.a
 cp clay/bindings/odin/clay-odin/linux/clay.a clay.linux.a
 cp clay/bindings/odin/clay-odin/windows/clay.lib clay.lib
+cp clay/bindings/odin/clay-odin/wasm/clay.o clay.wasm.o
 
 # if [ $(uname -s) = 'Darwin' ]; then
 #     LIB_EXT="darwin"

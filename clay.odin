@@ -14,11 +14,9 @@ when ODIN_OS == .Windows {
     // else {
     // 	foreign import lib "macos/clay.a"
     // }
+} else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+    foreign import lib "clay.wasm.o"
 }
-// NOTE: ignored for now
-// else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
-// 	foreign import lib "wasm/clay.o"
-// }
 
 String :: struct {
     isStaticallyAllocated: c.bool,
