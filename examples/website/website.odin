@@ -83,7 +83,7 @@ LandingPageBlob :: proc(
     ) {
         if clay.UI(clay.ID("CheckImage", index))(
         {layout = {sizing = {width = clay.SizingFixed(32)}}, aspectRatio = {1.0}, image = {imageData = image}},
-        ) {}
+        ) {  }
         clay.Text(text, clay.TextConfig({fontSize = fontSize, fontId = fontId, textColor = color}))
     }
 }
@@ -116,7 +116,7 @@ LandingPageDesktop :: proc() {
                     "Clay is a flex-box style UI auto layout library in C, with declarative syntax and microsecond performance.",
                     clay.TextConfig({fontSize = 56, fontId = FONT_ID_TITLE_56, textColor = COLOR_RED}),
                 )
-                if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {}
+                if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {  }
                 clay.Text(
                     "Clay is laying out this webpage right now!",
                     clay.TextConfig({fontSize = 36, fontId = FONT_ID_TITLE_36, textColor = COLOR_ORANGE}),
@@ -168,7 +168,7 @@ LandingPageMobile :: proc() {
                 "Clay is a flex-box style UI auto layout library in C, with declarative syntax and microsecond performance.",
                 clay.TextConfig({fontSize = 48, fontId = FONT_ID_TITLE_48, textColor = COLOR_RED}),
             )
-            if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {}
+            if clay.UI()({layout = {sizing = {width = clay.SizingGrow({}), height = clay.SizingFixed(32)}}}) {  }
             clay.Text(
                 "Clay is laying out this webpage right now!",
                 clay.TextConfig({fontSize = 32, fontId = FONT_ID_TITLE_32, textColor = COLOR_ORANGE}),
@@ -273,7 +273,7 @@ DeclarativeSyntaxPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizi
     {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
     ) {
         clay.Text("Declarative Syntax", clay.TextConfig(titleTextConfig))
-        if clay.UI(clay.ID("SyntaxSpacer"))({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
+        if clay.UI(clay.ID("SyntaxSpacer"))({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {  }
         clay.Text(
             "Flexible and readable declarative syntax with nested UI element hierarchies.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_28, textColor = COLOR_RED}),
@@ -296,7 +296,7 @@ DeclarativeSyntaxPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizi
             aspectRatio = {1136.0 / 1194.0},
             image = {imageData = &syntaxImage},
         },
-        ) {}
+        ) {  }
     }
 }
 
@@ -361,7 +361,7 @@ HighPerformancePage :: proc(lerpValue: f32, titleTextConfig: clay.TextElementCon
     {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
     ) {
         clay.Text("High Performance", clay.TextConfig(titleTextConfig))
-        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
+        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {  }
         clay.Text(
             "Fast enough to recompute your entire UI every frame.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_LIGHT}),
@@ -487,7 +487,7 @@ RendererPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.
     {layout = {sizing = {width = widthSizing}, layoutDirection = .TopToBottom, childGap = 8}},
     ) {
         clay.Text("Renderer & Platform Agnostic", clay.TextConfig(titleTextConfig))
-        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {}
+        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 16})}}}) {  }
         clay.Text(
             "Clay outputs a sorted array of primitive render commands, such as RECTANGLE, TEXT or IMAGE.",
             clay.TextConfig({fontSize = 28, fontId = FONT_ID_BODY_36, textColor = COLOR_RED}),
@@ -515,7 +515,7 @@ RendererPage :: proc(titleTextConfig: clay.TextElementConfig, widthSizing: clay.
             "Try changing renderer!",
             clay.TextConfig({fontSize = 36, fontId = FONT_ID_BODY_36, textColor = COLOR_ORANGE}),
         )
-        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 32})}}}) {}
+        if clay.UI()({layout = {sizing = {width = clay.SizingGrow({max = 32})}}}) {  }
         RendererButtonActive(0, "rl Renderer")
     }
 }
@@ -592,7 +592,7 @@ createLayout :: proc(lerpValue: f32) -> clay.Array(clay.RenderCommand) {
         },
         ) {
             clay.Text("Clay", &headerTextConfig)
-            if clay.UI()({layout = {sizing = {width = clay.SizingGrow()}}}) {}
+            if clay.UI()({layout = {sizing = {width = clay.SizingGrow()}}}) {  }
 
             if (!mobileScreen) {
                 if clay.UI(clay.ID("LinkExamplesOuter"))({backgroundColor = {0, 0, 0, 0}}) {
@@ -624,19 +624,19 @@ createLayout :: proc(lerpValue: f32) -> clay.Array(clay.RenderCommand) {
         }
         if clay.UI(clay.ID("TopBorder1"))(
         {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_5},
-        ) {}
+        ) {  }
         if clay.UI(clay.ID("TopBorder2"))(
         {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_4},
-        ) {}
+        ) {  }
         if clay.UI(clay.ID("TopBorder3"))(
         {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_3},
-        ) {}
+        ) {  }
         if clay.UI(clay.ID("TopBorder4"))(
         {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_2},
-        ) {}
+        ) {  }
         if clay.UI(clay.ID("TopBorder5"))(
         {layout = {sizing = {clay.SizingGrow(), clay.SizingFixed(4)}}, backgroundColor = COLOR_TOP_BORDER_1},
-        ) {}
+        ) {  }
         if clay.UI(clay.ID("ScrollContainerBackgroundRectangle"))(
         {
             clip = {vertical = true, childOffset = clay.GetScrollOffset()},

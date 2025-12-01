@@ -501,3 +501,4 @@ ID :: proc(label: string, index: u32 = 0) -> ElementId {
 ID_LOCAL :: proc(label: string, index: u32 = 0) -> ElementId {
     return _HashStringWithOffset(MakeString(label), index, _GetParentElementId())
 }
+
