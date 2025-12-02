@@ -6,8 +6,8 @@ import "core:strings"
 import rl "vendor:raylib"
 
 Raylib_Font :: struct {
-    fontId: u16,
-    font:   rl.Font,
+    id:   u16,
+    font: rl.Font,
 }
 
 clay_color_to_rl_color :: proc(color: clay.Color) -> rl.Color {
@@ -16,16 +16,12 @@ clay_color_to_rl_color :: proc(color: clay.Color) -> rl.Color {
 
 raylib_fonts := [dynamic]Raylib_Font{}
 
-measure_text :: proc "c" (
-    text: clay.StringSlice,
-    config: ^clay.TextElementConfig,
-    userData: rawptr,
-) -> clay.Dimensions {
+measure_text :: proc "c" (text: clay.Slice, config: ^clay.TextElement, userData: rawptr) -> clay.Dimensions {
     line_width: f32 = 0
 
-    font := raylib_fonts[config.fontId].font
+    font := raylib_fonts[config.font].font
 
-    for i in 0 ..< text.length {
+    for i in 0 ..< text.len {
         glyph_index := text.chars[i] - 32
 
         glyph := font.glyphs[glyph_index]
@@ -37,155 +33,155 @@ measure_text :: proc "c" (
         }
     }
 
-    return {width = line_width / 2, height = f32(config.fontSize)}
+    return {line_width / 2, f32(config.size)}
 }
 
-clay_raylib_render :: proc(render_commands: ^clay.Array(clay.RenderCommand), allocator := context.temp_allocator) {
-    for i in 0 ..< render_commands.length {
-        render_command := clay.RenderCommandArray_Get(render_commands, i)
-        bounds := render_command.boundingBox
+clay_raylib_render :: proc(cmds: clay.Array(clay.Command), allocator := context.temp_allocator) {
+    for i in 0 ..< cmds.len {
+        cmd := clay.RenderCommandArray_Get(cmds, i)
+        bounds := cmd.bounds
 
-        switch render_command.commandType {
-        case .None: // None
-        case .Text:
-            config := render_command.renderData.text
+        switch cmd.which {
+        case .none: // None
+        case .text:
+            config := cmd.data.text
 
-            text := string(config.stringContents.chars[:config.stringContents.length])
+            text := string(config.content.chars[:config.content.len])
 
             // Raylib uses C strings instead of Odin strings, so we need to clone
             // Assume this will be freed elsewhere since we default to the temp allocator
             cstr_text := strings.clone_to_cstring(text, allocator)
 
-            font := raylib_fonts[config.fontId].font
+            font := raylib_fonts[config.font].font
             rl.DrawTextEx(
                 font,
                 cstr_text,
-                {bounds.x, bounds.y},
-                f32(config.fontSize),
-                f32(config.letterSpacing),
-                clay_color_to_rl_color(config.textColor),
+                bounds.pos,
+                f32(config.size),
+                f32(config.spacing),
+                clay_color_to_rl_color(config.color),
             )
-        case .Image:
-            config := render_command.renderData.image
-            tint := config.backgroundColor
+        case .image:
+            config := cmd.data.image
+            tint := config.bg
             if tint == 0 {
                 tint = {255, 255, 255, 255}
             }
 
-            imageTexture := (^rl.Texture2D)(config.imageData)
+            imageTexture := (^rl.Texture2D)(config.image_data)
             rl.DrawTextureEx(
                 imageTexture^,
-                {bounds.x, bounds.y},
+                bounds.pos,
                 0,
-                bounds.width / f32(imageTexture.width),
+                bounds.size.x / f32(imageTexture.width),
                 clay_color_to_rl_color(tint),
             )
-        case .ScissorStart:
+        case .scissor_start:
             rl.BeginScissorMode(
-                i32(math.round(bounds.x)),
-                i32(math.round(bounds.y)),
-                i32(math.round(bounds.width)),
-                i32(math.round(bounds.height)),
+                i32(math.round(bounds.pos.x)),
+                i32(math.round(bounds.pos.y)),
+                i32(math.round(bounds.size.x)),
+                i32(math.round(bounds.size.y)),
             )
-        case .ScissorEnd:
+        case .scissor_end:
             rl.EndScissorMode()
-        case .Rectangle:
-            config := render_command.renderData.rectangle
-            if config.cornerRadius.topLeft > 0 {
-                radius: f32 = (config.cornerRadius.topLeft * 2) / min(bounds.width, bounds.height)
-                draw_rect_rounded(bounds.x, bounds.y, bounds.width, bounds.height, radius, config.backgroundColor)
+        case .rectangle:
+            config := cmd.data.rectangle
+            if config.corner.top_left > 0 {
+                radius: f32 = (config.corner.top_left * 2) / min(bounds.size.x, bounds.size.y)
+                draw_rect_rounded(bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y, radius, config.bg)
             } else {
-                draw_rect(bounds.x, bounds.y, bounds.width, bounds.height, config.backgroundColor)
+                draw_rect(bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y, config.bg)
             }
-        case .Border:
-            config := render_command.renderData.border
+        case .border:
+            config := cmd.data.border
             // Left border
-            if config.width.left > 0 {
+            if config.w.left > 0 {
                 draw_rect(
-                    bounds.x,
-                    bounds.y + config.cornerRadius.topLeft,
-                    f32(config.width.left),
-                    bounds.height - config.cornerRadius.topLeft - config.cornerRadius.bottomLeft,
+                    bounds.pos.x,
+                    bounds.pos.y + config.corner.top_left,
+                    f32(config.w.left),
+                    bounds.size.y - config.corner.top_left - config.corner.bottom_left,
                     config.color,
                 )
             }
             // Right border
-            if config.width.right > 0 {
+            if config.w.right > 0 {
                 draw_rect(
-                    bounds.x + bounds.width - f32(config.width.right),
-                    bounds.y + config.cornerRadius.topRight,
-                    f32(config.width.right),
-                    bounds.height - config.cornerRadius.topRight - config.cornerRadius.bottomRight,
+                    bounds.pos.x + bounds.size.x - f32(config.w.right),
+                    bounds.pos.y + config.corner.top_right,
+                    f32(config.w.right),
+                    bounds.size.y - config.corner.top_right - config.corner.bottom_right,
                     config.color,
                 )
             }
             // Top border
-            if config.width.top > 0 {
+            if config.w.top > 0 {
                 draw_rect(
-                    bounds.x + config.cornerRadius.topLeft,
-                    bounds.y,
-                    bounds.width - config.cornerRadius.topLeft - config.cornerRadius.topRight,
-                    f32(config.width.top),
+                    bounds.pos.x + config.corner.top_left,
+                    bounds.pos.y,
+                    bounds.size.x - config.corner.top_left - config.corner.top_right,
+                    f32(config.w.top),
                     config.color,
                 )
             }
             // Bottom border
-            if config.width.bottom > 0 {
+            if config.w.bottom > 0 {
                 draw_rect(
-                    bounds.x + config.cornerRadius.bottomLeft,
-                    bounds.y + bounds.height - f32(config.width.bottom),
-                    bounds.width - config.cornerRadius.bottomLeft - config.cornerRadius.bottomRight,
-                    f32(config.width.bottom),
+                    bounds.pos.x + config.corner.bottom_left,
+                    bounds.pos.y + bounds.size.y - f32(config.w.bottom),
+                    bounds.size.x - config.corner.bottom_left - config.corner.bottom_right,
+                    f32(config.w.bottom),
                     config.color,
                 )
             }
 
             // Rounded Borders
-            if config.cornerRadius.topLeft > 0 {
+            if config.corner.bottom_right > 0 {
                 draw_arc(
-                    bounds.x + config.cornerRadius.topLeft,
-                    bounds.y + config.cornerRadius.topLeft,
-                    config.cornerRadius.topLeft - f32(config.width.top),
-                    config.cornerRadius.topLeft,
-                    180,
-                    270,
-                    config.color,
-                )
-            }
-            if config.cornerRadius.topRight > 0 {
-                draw_arc(
-                    bounds.x + bounds.width - config.cornerRadius.topRight,
-                    bounds.y + config.cornerRadius.topRight,
-                    config.cornerRadius.topRight - f32(config.width.top),
-                    config.cornerRadius.topRight,
-                    270,
-                    360,
-                    config.color,
-                )
-            }
-            if config.cornerRadius.bottomLeft > 0 {
-                draw_arc(
-                    bounds.x + config.cornerRadius.bottomLeft,
-                    bounds.y + bounds.height - config.cornerRadius.bottomLeft,
-                    config.cornerRadius.bottomLeft - f32(config.width.top),
-                    config.cornerRadius.bottomLeft,
-                    90,
-                    180,
-                    config.color,
-                )
-            }
-            if config.cornerRadius.bottomRight > 0 {
-                draw_arc(
-                    bounds.x + bounds.width - config.cornerRadius.bottomRight,
-                    bounds.y + bounds.height - config.cornerRadius.bottomRight,
-                    config.cornerRadius.bottomRight - f32(config.width.bottom),
-                    config.cornerRadius.bottomRight,
+                    bounds.pos.x + bounds.size.x - config.corner.bottom_right,
+                    bounds.pos.y + bounds.size.y - config.corner.bottom_right,
+                    config.corner.bottom_right - f32(config.w.bottom),
+                    config.corner.bottom_right,
                     0.1,
                     90,
                     config.color,
                 )
             }
-        case clay.RenderCommandType.Custom:
+            if config.corner.bottom_left > 0 {
+                draw_arc(
+                    bounds.pos.x + config.corner.bottom_left,
+                    bounds.pos.y + bounds.size.y - config.corner.bottom_left,
+                    config.corner.bottom_left - f32(config.w.bottom),
+                    config.corner.bottom_left,
+                    90,
+                    180,
+                    config.color,
+                )
+            }
+            if config.corner.top_left > 0 {
+                draw_arc(
+                    bounds.pos.x + config.corner.top_left,
+                    bounds.pos.y + config.corner.top_left,
+                    config.corner.top_left - f32(config.w.top),
+                    config.corner.top_left,
+                    180,
+                    270,
+                    config.color,
+                )
+            }
+            if config.corner.top_right > 0 {
+                draw_arc(
+                    bounds.pos.x + bounds.size.x - config.corner.top_right,
+                    bounds.pos.y + config.corner.top_right,
+                    config.corner.top_right - f32(config.w.top),
+                    config.corner.top_right,
+                    270,
+                    360,
+                    config.color,
+                )
+            }
+        case .custom:
         // Implement custom element rendering here
         }
     }
@@ -221,3 +217,4 @@ draw_rect :: proc(x, y, w, h: f32, color: clay.Color) {
 draw_rect_rounded :: proc(x, y, w, h: f32, radius: f32, color: clay.Color) {
     rl.DrawRectangleRounded({x, y, w, h}, radius, 8, clay_color_to_rl_color(color))
 }
+

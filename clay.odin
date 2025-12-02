@@ -19,23 +19,20 @@ when ODIN_OS == .Windows {
 }
 
 String :: struct {
-    isStaticallyAllocated: c.bool,
-    length:                c.int32_t,
-    chars:                 [^]c.char,
+    static: c.bool,
+    len:    c.int32_t,
+    chars:  [^]c.char,
 }
 
-StringSlice :: struct {
-    length:    c.int32_t,
+Slice :: struct {
+    len:       c.int32_t,
     chars:     [^]c.char,
     baseChars: [^]c.char,
 }
 
-Vector2 :: [2]c.float
+Vector2 :: [2]f32
 
-Dimensions :: struct {
-    width:  c.float,
-    height: c.float,
-}
+Dimensions :: Vector2
 
 Arena :: struct {
     nextAllocation: uintptr,
@@ -43,24 +40,18 @@ Arena :: struct {
     memory:         [^]c.char,
 }
 
-BoundingBox :: struct {
-    x:      c.float,
-    y:      c.float,
-    width:  c.float,
-    height: c.float,
+BBox :: struct {
+    pos, size: Vector2,
 }
 
-Color :: [4]c.float
+Color :: [4]f32
 
-CornerRadius :: struct {
-    topLeft:     c.float,
-    topRight:    c.float,
-    bottomLeft:  c.float,
-    bottomRight: c.float,
+Corner :: struct {
+    top_left, top_right, bottom_left, bottom_right: f32,
 }
 
 BorderData :: struct {
-    width: u32,
+    w:     u32,
     color: Color,
 }
 
@@ -77,85 +68,85 @@ when ODIN_OS == .Windows {
     EnumBackingType :: u8
 }
 
-RenderCommandType :: enum EnumBackingType {
-    None,
-    Rectangle,
-    Border,
-    Text,
-    Image,
-    ScissorStart,
-    ScissorEnd,
-    Custom,
+RenderCommand :: enum EnumBackingType {
+    none,
+    rectangle,
+    border,
+    text,
+    image,
+    scissor_start,
+    scissor_end,
+    custom,
 }
 
-RectangleElementConfig :: struct {
+RectangleElement :: struct {
     color: Color,
 }
 
 TextWrapMode :: enum EnumBackingType {
-    Words,
-    Newlines,
-    None,
+    words,
+    newlines,
+    none,
 }
 
 TextAlignment :: enum EnumBackingType {
-    Left,
-    Center,
-    Right,
+    left,
+    center,
+    right,
 }
 
-TextElementConfig :: struct {
-    userData:      rawptr,
-    textColor:     Color,
-    fontId:        u16,
-    fontSize:      u16,
-    letterSpacing: u16,
-    lineHeight:    u16,
-    wrapMode:      TextWrapMode,
-    textAlignment: TextAlignment,
+TextElement :: struct {
+    user_data: rawptr,
+    color:     Color,
+    font:      u16,
+    size:      u16,
+    spacing:   u16,
+    height:    u16,
+    wrap:      TextWrapMode,
+    align:     TextAlignment,
 }
 
-AspectRatioElementConfig :: struct {
-    aspectRatio: f32,
+Aspect :: struct {
+    aspect: f32,
 }
 
-ImageElementConfig :: struct {
-    imageData: rawptr,
+ImageElement :: struct {
+    image_data: rawptr,
 }
 
-CustomElementConfig :: struct {
-    customData: rawptr,
+CustomElement :: struct {
+    custom_data: rawptr,
 }
 
 BorderWidth :: struct {
-    left:            u16,
-    right:           u16,
-    top:             u16,
-    bottom:          u16,
-    betweenChildren: u16,
+    left:    u16,
+    right:   u16,
+    top:     u16,
+    bottom:  u16,
+    between: u16,
 }
 
-BorderElementConfig :: struct {
+BorderElement :: struct {
     color: Color,
-    width: BorderWidth,
+    w:     BorderWidth,
 }
 
-ClipElementConfig :: struct {
-    horizontal:  bool, // clip overflowing elements on the "X" axis
-    vertical:    bool, // clip overflowing elements on the "Y" axis
-    childOffset: Vector2, // offsets the [X,Y] positions of all child elements, primarily for scrolling containers
+ClipElement :: struct {
+    h:      bool, // clip overflowing elements on the "X" axis
+    v:      bool, // clip overflowing elements on the "Y" axis
+    offset: Vector2, // offsets the [X,Y] positions of all child elements, primarily for scrolling containers
 }
 
 FloatingAttachPointType :: enum EnumBackingType {
-    LeftTop,
-    LeftCenter,
-    LeftBottom,
-    CenterTop,
-    CenterCenter,
-    CenterBottom,
-    RightTop,
-    RightCenter,
-    RightBottom,
+    left_top,
+    left_center,
+    left_bottom,
+    center_top,
+    center_center,
+    center_bottom,
+    right_top,
+    right_center,
+    right_bottom,
 }
 
 FloatingAttachPoints :: struct {
@@ -164,80 +155,80 @@ FloatingAttachPoints :: struct {
 }
 
 PointerCaptureMode :: enum EnumBackingType {
-    Capture,
-    Passthrough,
+    capture,
+    passthrough,
 }
 
 FloatingAttachToElement :: enum EnumBackingType {
-    None,
-    Parent,
-    ElementWithId,
-    Root,
+    none,
+    parent,
+    element_with_id,
+    root,
 }
 
 FloatingClipToElement :: enum EnumBackingType {
-    None,
-    AttachedParent,
+    none,
+    attached_parent,
 }
 
-FloatingElementConfig :: struct {
-    offset:             Vector2,
-    expand:             Dimensions,
-    parentId:           u32,
-    zIndex:             i16,
-    attachment:         FloatingAttachPoints,
-    pointerCaptureMode: PointerCaptureMode,
-    attachTo:           FloatingAttachToElement,
-    clipTo:             FloatingClipToElement,
+FloatingElement :: struct {
+    offset:  Vector2,
+    expand:  Dimensions,
+    parent:  u32,
+    z:       i16,
+    point:   FloatingAttachPoints,
+    capture: PointerCaptureMode,
+    attach:  FloatingAttachToElement,
+    clip:    FloatingClipToElement,
 }
 
-TextRenderData :: struct {
-    stringContents: StringSlice,
-    textColor:      Color,
-    fontId:         u16,
-    fontSize:       u16,
-    letterSpacing:  u16,
-    lineHeight:     u16,
+TextRender :: struct {
+    content: Slice,
+    color:   Color,
+    font:    u16,
+    size:    u16,
+    spacing: u16,
+    height:  u16,
 }
 
-RectangleRenderData :: struct {
-    backgroundColor: Color,
-    cornerRadius:    CornerRadius,
+RectangleRender :: struct {
+    bg:     Color,
+    corner: Corner,
 }
 
-ImageRenderData :: struct {
-    backgroundColor: Color,
-    cornerRadius:    CornerRadius,
-    imageData:       rawptr,
+ImageRender :: struct {
+    bg:         Color,
+    corner:     Corner,
+    image_data: rawptr,
 }
 
-CustomRenderData :: struct {
-    backgroundColor: Color,
-    cornerRadius:    CornerRadius,
-    customData:      rawptr,
+CustomRender :: struct {
+    bg:          Color,
+    corner:      Corner,
+    custom_data: rawptr,
 }
 
-BorderRenderData :: struct {
-    color:        Color,
-    cornerRadius: CornerRadius,
-    width:        BorderWidth,
+BorderRender :: struct {
+    color:  Color,
+    corner: Corner,
+    w:      BorderWidth,
 }
 
 RenderCommandData :: struct #raw_union {
-    rectangle: RectangleRenderData,
-    text:      TextRenderData,
-    image:     ImageRenderData,
-    custom:    CustomRenderData,
-    border:    BorderRenderData,
+    rectangle: RectangleRender,
+    text:      TextRender,
+    image:     ImageRender,
+    custom:    CustomRender,
+    border:    BorderRender,
 }
 
-RenderCommand :: struct {
-    boundingBox: BoundingBox,
-    renderData:  RenderCommandData,
-    userData:    rawptr,
-    id:          u32,
-    zIndex:      i16,
-    commandType: RenderCommandType,
+Command :: struct {
+    bounds:    BBox,
+    data:      RenderCommandData,
+    user_data: rawptr,
+    id:        u32,
+    z:         i16,
+    which:     RenderCommand,
 }
 
 ScrollContainerData :: struct {
@@ -246,14 +237,14 @@ ScrollContainerData :: struct {
     scrollPosition:            ^Vector2,
     scrollContainerDimensions: Dimensions,
     contentDimensions:         Dimensions,
-    config:                    ClipElementConfig,
+    config:                    ClipElement,
     // Indicates whether an actual scroll container matched the provided ID or if the default struct was returned.
     found:                     bool,
 }
 
 ElementData :: struct {
-    boundingBox: BoundingBox,
-    found:       bool,
+    bounds: BBox,
+    found:  bool,
 }
 
 PointerDataInteractionState :: enum EnumBackingType {
@@ -269,20 +260,20 @@ PointerData :: struct {
 }
 
 SizingType :: enum EnumBackingType {
-    Fit,
-    Grow,
-    Percent,
-    Fixed,
+    fit,
+    grow,
+    percent,
+    fixed,
 }
 
 SizingConstraintsMinMax :: struct {
-    min: c.float,
-    max: c.float,
+    min: f32,
+    max: f32,
 }
 
 SizingConstraints :: struct #raw_union {
-    sizeMinMax:  SizingConstraintsMinMax,
-    sizePercent: c.float,
+    min_max: SizingConstraintsMinMax,
+    percent: f32,
 }
 
 SizingAxis :: struct {
@@ -292,8 +283,8 @@ SizingAxis :: struct {
 }
 
 Sizing :: struct {
-    width:  SizingAxis,
-    height: SizingAxis,
+    w: SizingAxis,
+    h: SizingAxis,
 }
 
 Padding :: struct {
@@ -303,53 +294,53 @@ Padding :: struct {
     bottom: u16,
 }
 
-LayoutDirection :: enum EnumBackingType {
-    LeftToRight,
-    TopToBottom,
+Dir :: enum EnumBackingType {
+    h,
+    v,
 }
 
-LayoutAlignmentX :: enum EnumBackingType {
-    Left,
-    Right,
-    Center,
+AlignH :: enum EnumBackingType {
+    left,
+    right,
+    center,
 }
 
-LayoutAlignmentY :: enum EnumBackingType {
-    Top,
-    Bottom,
-    Center,
+AlignV :: enum EnumBackingType {
+    top,
+    bottom,
+    center,
 }
 
 ChildAlignment :: struct {
-    x: LayoutAlignmentX,
-    y: LayoutAlignmentY,
+    x: AlignH,
+    y: AlignV,
 }
 
-LayoutConfig :: struct {
-    sizing:          Sizing,
-    padding:         Padding,
-    childGap:        u16,
-    childAlignment:  ChildAlignment,
-    layoutDirection: LayoutDirection,
+Layout :: struct {
+    size:  Sizing,
+    pad:   Padding,
+    gap:   u16,
+    align: ChildAlignment,
+    dir:   Dir,
 }
 
 Array :: struct($type: typeid) {
-    capacity:      i32,
-    length:        i32,
-    internalArray: [^]type,
+    capacity: i32,
+    len:      i32,
+    internal: [^]type,
 }
 
 ElementDeclaration :: struct {
-    layout:          LayoutConfig,
-    backgroundColor: Color,
-    cornerRadius:    CornerRadius,
-    aspectRatio:     AspectRatioElementConfig,
-    image:           ImageElementConfig,
-    floating:        FloatingElementConfig,
-    custom:          CustomElementConfig,
-    clip:            ClipElementConfig,
-    border:          BorderElementConfig,
-    userData:        rawptr,
+    layout:    Layout,
+    bg:        Color,
+    corner:    Corner,
+    aspect:    Aspect,
+    image:     ImageElement,
+    floating:  FloatingElement,
+    custom:    CustomElement,
+    clip:      ClipElement,
+    border:    BorderElement,
+    user_data: rawptr,
 }
 
 ErrorType :: enum EnumBackingType {
@@ -364,14 +355,14 @@ ErrorType :: enum EnumBackingType {
 }
 
 ErrorData :: struct {
-    errorType: ErrorType,
-    errorText: String,
-    userData:  rawptr,
+    error:     ErrorType,
+    text:      String,
+    user_data: rawptr,
 }
 
 ErrorHandler :: struct {
-    handler:  proc "c" (errorData: ErrorData),
-    userData: rawptr,
+    handler:   proc "c" (errorData: ErrorData),
+    user_data: rawptr,
 }
 
 Context :: struct {} // opaque structure, only use as a pointer
@@ -384,24 +375,24 @@ foreign lib {
     MinMemorySize :: proc() -> u32 ---
     CreateArenaWithCapacityAndMemory :: proc(capacity: c.size_t, offset: [^]u8) -> Arena ---
     SetPointerState :: proc(position: Vector2, pointerDown: bool) ---
-    Initialize :: proc(arena: Arena, layoutDimensions: Dimensions, errorHandler: ErrorHandler) -> ^Context ---
+    Initialize :: proc(arena: Arena, dim: Dimensions, errorHandler: ErrorHandler) -> ^Context ---
     GetCurrentContext :: proc() -> ^Context ---
     SetCurrentContext :: proc(ctx: ^Context) ---
-    UpdateScrollContainers :: proc(enableDragScrolling: bool, scrollDelta: Vector2, deltaTime: c.float) ---
+    UpdateScrollContainers :: proc(enableDragScrolling: bool, scrollDelta: Vector2, deltaTime: f32) ---
     SetLayoutDimensions :: proc(dimensions: Dimensions) ---
     BeginLayout :: proc() ---
-    EndLayout :: proc() -> Array(RenderCommand) ---
+    EndLayout :: proc() -> Array(Command) ---
     GetElementId :: proc(id: String) -> ElementId ---
     GetElementIdWithIndex :: proc(id: String, index: u32) -> ElementId ---
     GetElementData :: proc(id: ElementId) -> ElementData ---
     Hovered :: proc() -> bool ---
-    OnHover :: proc(onHoverFunction: proc "c" (id: ElementId, pointerData: PointerData, userData: rawptr), userData: rawptr) ---
+    OnHover :: proc(onHoverFunction: proc "c" (id: ElementId, pointerData: PointerData, user_data: rawptr), user_data: rawptr) ---
     PointerOver :: proc(id: ElementId) -> bool ---
     GetScrollOffset :: proc() -> Vector2 ---
     GetScrollContainerData :: proc(id: ElementId) -> ScrollContainerData ---
-    SetMeasureTextFunction :: proc(measureTextFunction: proc "c" (text: StringSlice, config: ^TextElementConfig, userData: rawptr) -> Dimensions, userData: rawptr) ---
-    SetQueryScrollOffsetFunction :: proc(queryScrollOffsetFunction: proc "c" (elementId: u32, userData: rawptr) -> Vector2, userData: rawptr) ---
-    RenderCommandArray_Get :: proc(array: ^Array(RenderCommand), index: i32) -> ^RenderCommand ---
+    SetMeasureTextFunction :: proc(measureTextFunction: proc "c" (text: Slice, config: ^TextElement, user_data: rawptr) -> Dimensions, user_data: rawptr) ---
+    SetQueryScrollOffsetFunction :: proc(queryScrollOffsetFunction: proc "c" (elementId: u32, user_data: rawptr) -> Vector2, user_data: rawptr) ---
+    RenderCommandArray_Get :: proc(#by_ptr array: Array(Command), index: i32) -> ^Command ---
     SetDebugModeEnabled :: proc(enabled: bool) ---
     IsDebugModeEnabled :: proc() -> bool ---
     SetCullingEnabled :: proc(enabled: bool) ---
@@ -417,8 +408,8 @@ foreign lib {
     _ConfigureOpenElement :: proc(config: ElementDeclaration) ---
     _HashString :: proc(key: String, seed: u32) -> ElementId ---
     _HashStringWithOffset :: proc(key: String, index: u32, seed: u32) -> ElementId ---
-    _OpenTextElement :: proc(text: String, textConfig: ^TextElementConfig) ---
-    _StoreTextElementConfig :: proc(config: TextElementConfig) -> ^TextElementConfig ---
+    _OpenTextElement :: proc(text: String, textConfig: ^TextElement) ---
+    _StoreTextElementConfig :: proc(config: TextElement) -> ^TextElement ---
     _GetParentElementId :: proc() -> u32 ---
 }
 
@@ -444,54 +435,61 @@ UI :: proc {
     UI_AutoId,
 }
 
-Text :: proc($text: string, config: ^TextElementConfig) {
+text :: proc($text: string, config: ^TextElement) {
     wrapped := MakeString(text)
-    wrapped.isStaticallyAllocated = true
+    wrapped.static = true
     _OpenTextElement(wrapped, config)
 }
 
-TextDynamic :: proc(text: string, config: ^TextElementConfig) {
+text_dynamic :: proc(text: string, config: ^TextElement) {
     _OpenTextElement(MakeString(text), config)
 }
 
-TextConfig :: proc(config: TextElementConfig) -> ^TextElementConfig {
+text_config :: proc(config: TextElement) -> ^TextElement {
     return _StoreTextElementConfig(config)
 }
 
-PaddingAll :: proc(allPadding: u16) -> Padding {
-    return {left = allPadding, right = allPadding, top = allPadding, bottom = allPadding}
+stext :: proc($t: string, config: TextElement) {
+    text(t, text_config(config))
+}
+dtext :: proc(t: string, config: TextElement) {
+    text_dynamic(t, text_config(config))
 }
 
-BorderOutside :: proc(width: u16) -> BorderWidth {
+pad_all :: proc(pad: u16) -> Padding {
+    return {left = pad, right = pad, top = pad, bottom = pad}
+}
+
+border_out :: proc(width: u16) -> BorderWidth {
     return {width, width, width, width, 0}
 }
 
-BorderAll :: proc(width: u16) -> BorderWidth {
+border_all :: proc(width: u16) -> BorderWidth {
     return {width, width, width, width, width}
 }
 
-CornerRadiusAll :: proc(radius: f32) -> CornerRadius {
-    return CornerRadius{radius, radius, radius, radius}
+corner_all :: proc(radius: f32) -> Corner {
+    return {radius, radius, radius, radius}
 }
 
-SizingFit :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
-    return SizingAxis{type = SizingType.Fit, constraints = {sizeMinMax = sizeMinMax}}
+fit :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
+    return {type = .fit, constraints = {min_max = sizeMinMax}}
 }
 
-SizingGrow :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
-    return SizingAxis{type = SizingType.Grow, constraints = {sizeMinMax = sizeMinMax}}
+grow :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
+    return {type = .grow, constraints = {min_max = sizeMinMax}}
 }
 
-SizingFixed :: proc(size: c.float) -> SizingAxis {
-    return SizingAxis{type = SizingType.Fixed, constraints = {sizeMinMax = {size, size}}}
+fixed :: proc(size: f32) -> SizingAxis {
+    return {type = .fixed, constraints = {min_max = {size, size}}}
 }
 
-SizingPercent :: proc(sizePercent: c.float) -> SizingAxis {
-    return SizingAxis{type = SizingType.Percent, constraints = {sizePercent = sizePercent}}
+percent :: proc(sizePercent: f32) -> SizingAxis {
+    return SizingAxis{type = .percent, constraints = {percent = sizePercent}}
 }
 
 MakeString :: proc(label: string) -> String {
-    return String{chars = raw_data(label), length = cast(c.int)len(label)}
+    return String{chars = raw_data(label), len = cast(c.int)len(label)}
 }
 
 ID :: proc(label: string, index: u32 = 0) -> ElementId {
