@@ -366,12 +366,10 @@ ErrorHandler :: struct {
 }
 
 Context :: struct {} // opaque structure, only use as a pointer
+hover_fn :: #type proc "c" (id: ElementId, pointerData: PointerData, user_data: rawptr)
 
 @(link_prefix = "Clay_", default_calling_convention = "c")
 foreign lib {
-    _OpenElement :: proc() ---
-    _OpenElementWithId :: proc(id: ElementId) ---
-    _CloseElement :: proc() ---
     MinMemorySize :: proc() -> u32 ---
     CreateArenaWithCapacityAndMemory :: proc(capacity: c.size_t, offset: [^]u8) -> Arena ---
     SetPointerState :: proc(position: Vector2, pointerDown: bool) ---
@@ -386,7 +384,7 @@ foreign lib {
     GetElementIdWithIndex :: proc(id: String, index: u32) -> ElementId ---
     GetElementData :: proc(id: ElementId) -> ElementData ---
     Hovered :: proc() -> bool ---
-    OnHover :: proc(onHoverFunction: proc "c" (id: ElementId, pointerData: PointerData, user_data: rawptr), user_data: rawptr) ---
+    OnHover :: proc(onHoverFunction: hover_fn, user_data: rawptr) ---
     PointerOver :: proc(id: ElementId) -> bool ---
     GetScrollOffset :: proc() -> Vector2 ---
     GetScrollContainerData :: proc(id: ElementId) -> ScrollContainerData ---
@@ -403,100 +401,216 @@ foreign lib {
     ResetMeasureTextCache :: proc() ---
 }
 
+ElementType :: enum EnumBackingType {
+    none,
+    border,
+    floating,
+    clip,
+    aspect,
+    image,
+    text,
+    custom,
+    shared,
+}
+
+
+SharedElement :: struct {
+    bg:        Color,
+    corner:    Corner,
+    user_data: rawptr,
+}
+
+Element :: struct {
+    type:   ElementType,
+    config: struct #raw_union {
+        text:     ^TextElement,
+        aspect:   ^Aspect,
+        image:    ^ImageElement,
+        floating: ^FloatingElement,
+        custom:   ^CustomElement,
+        clip:     ^ClipElement,
+        border:   ^BorderElement,
+        shared:   ^SharedElement,
+    },
+}
+
+LayoutElement :: struct {
+    childrenOrTextContent:     struct #raw_union {
+        children:        struct {
+            elements: ^i32,
+            length:   u16,
+        },
+        textElementData: rawptr,
+        // struct {
+        //     text:                String,
+        //     preferredDimensions: Dimensions,
+        //     elementIndex:        i32,
+        //     wrappedLines:        struct {
+        //         length:        i32,
+        //         internalArray: ^struct {
+        //             dimensions: Dimensions,
+        //             line:       String,
+        //         },
+        //     },
+        // },
+    },
+    dimensions, minDimensions: Dimensions,
+    layoutConfig:              ^Layout,
+    elementConfigs:            struct {
+        length:        i32,
+        internalArray: ^Element,
+    },
+    id:                        u32,
+    floatingChildrenCount:     u16,
+}
+
+LayoutElementHashMapItem :: struct {
+    boundingBox:           BBox,
+    elementId:             ElementId,
+    layoutElement:         ^LayoutElement,
+    on_hover:              hover_fn,
+    hoverFunctionUserData: rawptr,
+    nextIndex:             i32,
+    generation:            u32,
+    debugData:             rawptr,
+}
+
+_LayoutElementTreeRoot :: struct {
+    layoutElementIndex: i32,
+    parentId:           u32, // This can be zero in the case of the root layout tree
+    clipElementId:      u32, // This can be zero if there is no clip element
+    zIndex:             i16,
+    pointerOffset:      Vector2, // Only used when scroll containers are managed externally
+}
+
 @(link_prefix = "Clay_", default_calling_convention = "c", private)
 foreign lib {
+    _OpenElement :: proc() ---
+    _OpenElementWithId :: proc(id: ElementId) ---
+    _CloseElement :: proc() ---
     _ConfigureOpenElement :: proc(config: ElementDeclaration) ---
     _HashString :: proc(key: String, seed: u32) -> ElementId ---
     _HashStringWithOffset :: proc(key: String, index: u32, seed: u32) -> ElementId ---
     _OpenTextElement :: proc(text: String, textConfig: ^TextElement) ---
     _StoreTextElementConfig :: proc(config: TextElement) -> ^TextElement ---
     _GetParentElementId :: proc() -> u32 ---
+    _GetHashMapItem :: proc(id: u32) -> LayoutElementHashMapItem ---
+    _FindTreeRoot :: proc(id: u32) -> ^_LayoutElementTreeRoot ---
 }
 
-ConfigureOpenElement :: proc(config: ElementDeclaration) -> bool {
+get_parent :: proc "contextless" () -> u32 {
+    return _GetParentElementId()
+}
+
+find_parent :: proc "contextless" (id: u32) -> Maybe(ElementId) {
+    if root := _FindTreeRoot(id); root != nil {
+        return _GetHashMapItem(root.parentId).elementId
+    }
+    return nil
+}
+
+ConfigureOpenElement :: proc "contextless" (config: ElementDeclaration) -> bool {
     _ConfigureOpenElement(config)
     return true
 }
+open_id :: proc "contextless" (id: ElementId) -> proc "c" (config: ElementDeclaration) {
+    _OpenElementWithId(id)
+    return _ConfigureOpenElement
+}
+open_auto :: proc "contextless" () -> proc "c" (config: ElementDeclaration) {
+    _OpenElement()
+    return _ConfigureOpenElement
+}
+open :: proc {
+    open_id,
+    open_auto,
+}
+close :: proc "contextless" () {
+    _CloseElement()
+}
 
 @(deferred_none = _CloseElement)
-UI_WithId :: proc(id: ElementId) -> proc(config: ElementDeclaration) -> bool {
+UI_id :: proc "contextless" (id: ElementId) -> proc "contextless" (config: ElementDeclaration) -> bool {
     _OpenElementWithId(id)
     return ConfigureOpenElement
 }
 
 @(deferred_none = _CloseElement)
-UI_AutoId :: proc() -> proc(config: ElementDeclaration) -> bool {
+UI_auto :: proc "contextless" () -> proc "contextless" (config: ElementDeclaration) -> bool {
     _OpenElement()
     return ConfigureOpenElement
 }
 
 UI :: proc {
-    UI_WithId,
-    UI_AutoId,
+    UI_id,
+    UI_auto,
 }
 
-text :: proc($text: string, config: ^TextElement) {
+text :: proc "contextless" ($text: string, config: ^TextElement) {
     wrapped := MakeString(text)
     wrapped.static = true
     _OpenTextElement(wrapped, config)
 }
 
-text_dynamic :: proc(text: string, config: ^TextElement) {
+text_dynamic :: proc "contextless" (text: string, config: ^TextElement) {
     _OpenTextElement(MakeString(text), config)
 }
 
-text_config :: proc(config: TextElement) -> ^TextElement {
+text_config :: proc "contextless" (config: TextElement) -> ^TextElement {
     return _StoreTextElementConfig(config)
 }
 
-stext :: proc($t: string, config: TextElement) {
+stext :: proc "contextless" ($t: string, config: TextElement) {
     text(t, text_config(config))
 }
-dtext :: proc(t: string, config: TextElement) {
+dtext :: proc "contextless" (t: string, config: TextElement) {
     text_dynamic(t, text_config(config))
 }
 
-pad_all :: proc(pad: u16) -> Padding {
+pad_all :: proc "contextless" (pad: u16) -> Padding {
     return {left = pad, right = pad, top = pad, bottom = pad}
 }
 
-border_out :: proc(width: u16) -> BorderWidth {
+border_out :: proc "contextless" (width: u16) -> BorderWidth {
     return {width, width, width, width, 0}
 }
+bout :: proc "contextless" (c: Color, w: u16) -> BorderElement {
+    return {c, border_out(w)}
+}
 
-border_all :: proc(width: u16) -> BorderWidth {
+border_all :: proc "contextless" (width: u16) -> BorderWidth {
     return {width, width, width, width, width}
 }
 
-corner_all :: proc(radius: f32) -> Corner {
+corner_all :: proc "contextless" (radius: f32) -> Corner {
     return {radius, radius, radius, radius}
 }
 
-fit :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
+fit :: proc "contextless" (sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
     return {type = .fit, constraints = {min_max = sizeMinMax}}
 }
 
-grow :: proc(sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
+grow :: proc "contextless" (sizeMinMax: SizingConstraintsMinMax = {}) -> SizingAxis {
     return {type = .grow, constraints = {min_max = sizeMinMax}}
 }
 
-fixed :: proc(size: f32) -> SizingAxis {
+fixed :: proc "contextless" (size: f32) -> SizingAxis {
     return {type = .fixed, constraints = {min_max = {size, size}}}
 }
 
-percent :: proc(sizePercent: f32) -> SizingAxis {
-    return SizingAxis{type = .percent, constraints = {percent = sizePercent}}
+percent :: proc "contextless" (sizePercent: f32) -> SizingAxis {
+    return {type = .percent, constraints = {percent = sizePercent}}
 }
 
-MakeString :: proc(label: string) -> String {
-    return String{chars = raw_data(label), len = cast(c.int)len(label)}
+MakeString :: proc "contextless" (label: string) -> String {
+    return {chars = raw_data(label), len = cast(c.int)len(label)}
 }
 
-ID :: proc(label: string, index: u32 = 0) -> ElementId {
+ID :: proc "contextless" (label: string, index: u32 = 0) -> ElementId {
     return _HashString(MakeString(label), index)
 }
 
-ID_LOCAL :: proc(label: string, index: u32 = 0) -> ElementId {
+ID_LOCAL :: proc "contextless" (label: string, index: u32 = 0) -> ElementId {
     return _HashStringWithOffset(MakeString(label), index, _GetParentElementId())
 }
 
