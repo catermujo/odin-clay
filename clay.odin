@@ -282,10 +282,7 @@ SizingAxis :: struct {
     type:        SizingType,
 }
 
-Sizing :: struct {
-    w: SizingAxis,
-    h: SizingAxis,
-}
+Sizing :: [2]SizingAxis
 
 Padding :: struct {
     left:   u16,

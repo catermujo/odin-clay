@@ -624,4 +624,3 @@ main :: proc() {
         rl.EndDrawing()
     }
 }
-
