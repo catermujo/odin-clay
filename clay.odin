@@ -565,20 +565,38 @@ dtext :: proc "contextless" (t: string, config: TextElement) {
 }
 
 pad_all :: proc "contextless" (pad: u16) -> Padding {
-    return {left = pad, right = pad, top = pad, bottom = pad}
+    return {pad, pad, pad, pad}
+}
+padv :: proc "contextless" (pad: u16) -> Padding {
+    return {0, 0, pad, pad}
+}
+padh :: proc "contextless" (pad: u16) -> Padding {
+    return {pad, pad, 0, 0}
 }
 
-border_out :: proc "contextless" (width: u16) -> BorderWidth {
-    return {width, width, width, width, 0}
+border :: proc "contextless" (width: u16, between: u16) -> BorderWidth {
+    return {width, width, width, width, between}
 }
-bout :: proc "contextless" (c: Color, w: u16) -> BorderElement {
-    return {c, border_out(w)}
+borderv :: proc "contextless" (width: u16) -> BorderWidth {
+    return {0, 0, width, width, 0}
+}
+borderh :: proc "contextless" (width: u16) -> BorderWidth {
+    return {width, width, 0, 0, 0}
+}
+bv :: proc "contextless" (c: Color, w: u16) -> BorderElement {
+    return {c, borderv(w)}
+}
+bh :: proc "contextless" (c: Color, w: u16) -> BorderElement {
+    return {c, borderh(w)}
+}
+bord :: proc "contextless" (c: Color, w: u16, between: u16 = 0) -> BorderElement {
+    return {c, border(w, between)}
 }
 
-border_all :: proc "contextless" (width: u16) -> BorderWidth {
-    return {width, width, width, width, width}
-}
-
+// border_all :: proc "contextless" (width: u16) -> BorderWidth {
+//     return {width, width, width, width, width}
+// }
+//
 corner_all :: proc "contextless" (radius: f32) -> Corner {
     return {radius, radius, radius, radius}
 }
