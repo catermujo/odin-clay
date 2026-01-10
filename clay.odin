@@ -110,11 +110,11 @@ Aspect :: struct {
 }
 
 ImageElement :: struct {
-    image_data: rawptr,
+    data: rawptr,
 }
 
 CustomElement :: struct {
-    custom_data: rawptr,
+    data: rawptr,
 }
 
 BorderWidth :: struct {
