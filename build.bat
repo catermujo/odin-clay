@@ -2,7 +2,7 @@
 
 setlocal EnableDelayedExpansion
 
-if not exist clay\NUL (
+if not exist clay (
     git clone https://github.com/nicbarker/clay --depth=1
 )
 
