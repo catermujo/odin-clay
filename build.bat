@@ -3,7 +3,7 @@
 setlocal EnableDelayedExpansion
 
 if not exist clay (
-    git clone https://github.com/nicbarker/clay --depth=1
+    git clone --revision b16c7a48e1274e06b4a8826fc0f21b093f0a9396 https://github.com/catermujo/clay --depth=1
 )
 
 echo Building project...
