@@ -15,6 +15,7 @@ when ODIN_OS == .Windows {
     // 	foreign import lib "macos/clay.a"
     // }
 } else when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
+    foreign import lib "clay.wasm.o"
 }
 
 String :: struct {
@@ -364,72 +365,37 @@ ErrorHandler :: struct {
 Context :: struct {} // opaque structure, only use as a pointer
 hover_fn :: #type proc "c" (id: ElementId, pointerData: PointerData, user_data: rawptr)
 
-when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
-    @(link_prefix = "Clay_", default_calling_convention = "c")
-    foreign _ {
-        MinMemorySize :: proc() -> u32 ---
-        CreateArenaWithCapacityAndMemory :: proc(capacity: c.size_t, offset: [^]u8) -> Arena ---
-        SetPointerState :: proc(position: Vector2, pointerDown: bool) ---
-        Initialize :: proc(arena: Arena, dim: Dimensions, errorHandler: ErrorHandler) -> ^Context ---
-        GetCurrentContext :: proc() -> ^Context ---
-        SetCurrentContext :: proc(ctx: ^Context) ---
-        UpdateScrollContainers :: proc(enableDragScrolling: bool, scrollDelta: Vector2, deltaTime: f32) ---
-        SetLayoutDimensions :: proc(dimensions: Dimensions) ---
-        BeginLayout :: proc() ---
-        EndLayout :: proc() -> Array(Command) ---
-        GetElementId :: proc(id: String) -> ElementId ---
-        GetElementIdWithIndex :: proc(id: String, index: u32) -> ElementId ---
-        GetElementData :: proc(id: ElementId) -> ElementData ---
-        Hovered :: proc() -> bool ---
-        OnHover :: proc(onHoverFunction: hover_fn, user_data: rawptr) ---
-        PointerOver :: proc(id: ElementId) -> bool ---
-        GetScrollOffset :: proc() -> Vector2 ---
-        GetScrollContainerData :: proc(id: ElementId) -> ScrollContainerData ---
-        SetMeasureTextFunction :: proc(measureTextFunction: proc "c" (text: Slice, config: ^TextElement, user_data: rawptr) -> Dimensions, user_data: rawptr) ---
-        SetQueryScrollOffsetFunction :: proc(queryScrollOffsetFunction: proc "c" (elementId: u32, user_data: rawptr) -> Vector2, user_data: rawptr) ---
-        RenderCommandArray_Get :: proc(#by_ptr array: Array(Command), index: i32) -> ^Command ---
-        SetDebugModeEnabled :: proc(enabled: bool) ---
-        IsDebugModeEnabled :: proc() -> bool ---
-        SetCullingEnabled :: proc(enabled: bool) ---
-        GetMaxElementCount :: proc() -> i32 ---
-        SetMaxElementCount :: proc(maxElementCount: i32) ---
-        GetMaxMeasureTextCacheWordCount :: proc() -> i32 ---
-        SetMaxMeasureTextCacheWordCount :: proc(maxMeasureTextCacheWordCount: i32) ---
-        ResetMeasureTextCache :: proc() ---
-    }
-} else {
-    @(link_prefix = "Clay_", default_calling_convention = "c")
-    foreign lib {
-        MinMemorySize :: proc() -> u32 ---
-        CreateArenaWithCapacityAndMemory :: proc(capacity: c.size_t, offset: [^]u8) -> Arena ---
-        SetPointerState :: proc(position: Vector2, pointerDown: bool) ---
-        Initialize :: proc(arena: Arena, dim: Dimensions, errorHandler: ErrorHandler) -> ^Context ---
-        GetCurrentContext :: proc() -> ^Context ---
-        SetCurrentContext :: proc(ctx: ^Context) ---
-        UpdateScrollContainers :: proc(enableDragScrolling: bool, scrollDelta: Vector2, deltaTime: f32) ---
-        SetLayoutDimensions :: proc(dimensions: Dimensions) ---
-        BeginLayout :: proc() ---
-        EndLayout :: proc() -> Array(Command) ---
-        GetElementId :: proc(id: String) -> ElementId ---
-        GetElementIdWithIndex :: proc(id: String, index: u32) -> ElementId ---
-        GetElementData :: proc(id: ElementId) -> ElementData ---
-        Hovered :: proc() -> bool ---
-        OnHover :: proc(onHoverFunction: hover_fn, user_data: rawptr) ---
-        PointerOver :: proc(id: ElementId) -> bool ---
-        GetScrollOffset :: proc() -> Vector2 ---
-        GetScrollContainerData :: proc(id: ElementId) -> ScrollContainerData ---
-        SetMeasureTextFunction :: proc(measureTextFunction: proc "c" (text: Slice, config: ^TextElement, user_data: rawptr) -> Dimensions, user_data: rawptr) ---
-        SetQueryScrollOffsetFunction :: proc(queryScrollOffsetFunction: proc "c" (elementId: u32, user_data: rawptr) -> Vector2, user_data: rawptr) ---
-        RenderCommandArray_Get :: proc(#by_ptr array: Array(Command), index: i32) -> ^Command ---
-        SetDebugModeEnabled :: proc(enabled: bool) ---
-        IsDebugModeEnabled :: proc() -> bool ---
-        SetCullingEnabled :: proc(enabled: bool) ---
-        GetMaxElementCount :: proc() -> i32 ---
-        SetMaxElementCount :: proc(maxElementCount: i32) ---
-        GetMaxMeasureTextCacheWordCount :: proc() -> i32 ---
-        SetMaxMeasureTextCacheWordCount :: proc(maxMeasureTextCacheWordCount: i32) ---
-        ResetMeasureTextCache :: proc() ---
-    }
+@(link_prefix = "Clay_", default_calling_convention = "c")
+foreign lib {
+    MinMemorySize :: proc() -> u32 ---
+    CreateArenaWithCapacityAndMemory :: proc(capacity: c.size_t, offset: [^]u8) -> Arena ---
+    SetPointerState :: proc(position: Vector2, pointerDown: bool) ---
+    Initialize :: proc(arena: Arena, dim: Dimensions, errorHandler: ErrorHandler) -> ^Context ---
+    GetCurrentContext :: proc() -> ^Context ---
+    SetCurrentContext :: proc(ctx: ^Context) ---
+    UpdateScrollContainers :: proc(enableDragScrolling: bool, scrollDelta: Vector2, deltaTime: f32) ---
+    SetLayoutDimensions :: proc(dimensions: Dimensions) ---
+    BeginLayout :: proc() ---
+    EndLayout :: proc() -> Array(Command) ---
+    GetElementId :: proc(id: String) -> ElementId ---
+    GetElementIdWithIndex :: proc(id: String, index: u32) -> ElementId ---
+    GetElementData :: proc(id: ElementId) -> ElementData ---
+    Hovered :: proc() -> bool ---
+    OnHover :: proc(onHoverFunction: hover_fn, user_data: rawptr) ---
+    PointerOver :: proc(id: ElementId) -> bool ---
+    GetScrollOffset :: proc() -> Vector2 ---
+    GetScrollContainerData :: proc(id: ElementId) -> ScrollContainerData ---
+    SetMeasureTextFunction :: proc(measureTextFunction: proc "c" (text: Slice, config: ^TextElement, user_data: rawptr) -> Dimensions, user_data: rawptr) ---
+    SetQueryScrollOffsetFunction :: proc(queryScrollOffsetFunction: proc "c" (elementId: u32, user_data: rawptr) -> Vector2, user_data: rawptr) ---
+    RenderCommandArray_Get :: proc(#by_ptr array: Array(Command), index: i32) -> ^Command ---
+    SetDebugModeEnabled :: proc(enabled: bool) ---
+    IsDebugModeEnabled :: proc() -> bool ---
+    SetCullingEnabled :: proc(enabled: bool) ---
+    GetMaxElementCount :: proc() -> i32 ---
+    SetMaxElementCount :: proc(maxElementCount: i32) ---
+    GetMaxMeasureTextCacheWordCount :: proc() -> i32 ---
+    SetMaxMeasureTextCacheWordCount :: proc(maxMeasureTextCacheWordCount: i32) ---
+    ResetMeasureTextCache :: proc() ---
 }
 
 ElementType :: enum EnumBackingType {
@@ -513,36 +479,20 @@ _LayoutElementTreeRoot :: struct {
     zIndex:             i16,
     pointerOffset:      Vector2, // Only used when scroll containers are managed externally
 }
-when ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32 {
-    @(link_prefix = "Clay_", default_calling_convention = "c", private)
-    foreign _ {
-        _OpenElement :: proc() ---
-        _OpenElementWithId :: proc(id: ElementId) ---
-        _CloseElement :: proc() ---
-        _ConfigureOpenElement :: proc(config: ElementDeclaration) ---
-        _HashString :: proc(key: String, seed: u32) -> ElementId ---
-        _HashStringWithOffset :: proc(key: String, index: u32, seed: u32) -> ElementId ---
-        _OpenTextElement :: proc(text: String, textConfig: ^TextElement) ---
-        _StoreTextElementConfig :: proc(config: TextElement) -> ^TextElement ---
-        _GetParentElementId :: proc() -> u32 ---
-        _GetHashMapItem :: proc(id: u32) -> LayoutElementHashMapItem ---
-        _FindTreeRoot :: proc(id: u32) -> ^_LayoutElementTreeRoot ---
-    }
-} else {
-    @(link_prefix = "Clay_", default_calling_convention = "c", private)
-    foreign lib {
-        _OpenElement :: proc() ---
-        _OpenElementWithId :: proc(id: ElementId) ---
-        _CloseElement :: proc() ---
-        _ConfigureOpenElement :: proc(config: ElementDeclaration) ---
-        _HashString :: proc(key: String, seed: u32) -> ElementId ---
-        _HashStringWithOffset :: proc(key: String, index: u32, seed: u32) -> ElementId ---
-        _OpenTextElement :: proc(text: String, textConfig: ^TextElement) ---
-        _StoreTextElementConfig :: proc(config: TextElement) -> ^TextElement ---
-        _GetParentElementId :: proc() -> u32 ---
-        _GetHashMapItem :: proc(id: u32) -> LayoutElementHashMapItem ---
-        _FindTreeRoot :: proc(id: u32) -> ^_LayoutElementTreeRoot ---
-    }
+
+@(link_prefix = "Clay_", default_calling_convention = "c", private)
+foreign lib {
+    _OpenElement :: proc() ---
+    _OpenElementWithId :: proc(id: ElementId) ---
+    _CloseElement :: proc() ---
+    _ConfigureOpenElement :: proc(config: ElementDeclaration) ---
+    _HashString :: proc(key: String, seed: u32) -> ElementId ---
+    _HashStringWithOffset :: proc(key: String, index: u32, seed: u32) -> ElementId ---
+    _OpenTextElement :: proc(text: String, textConfig: ^TextElement) ---
+    _StoreTextElementConfig :: proc(config: TextElement) -> ^TextElement ---
+    _GetParentElementId :: proc() -> u32 ---
+    _GetHashMapItem :: proc(id: u32) -> LayoutElementHashMapItem ---
+    _FindTreeRoot :: proc(id: u32) -> ^_LayoutElementTreeRoot ---
 }
 
 get_parent :: proc "contextless" () -> u32 {
